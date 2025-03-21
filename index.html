@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Scraper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Canales Recomendados de Twitch</h1>
+        <button id="scrape-btn">Iniciar Scraping</button>
+        <div id="channels" class="channels-grid"></div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Escuchar el evento de scraping
+        ipcRenderer.on('scraping-data', (event, data) => {
+            const channelsDiv = document.getElementById('channels');
+            channelsDiv.innerHTML = ''; // Limpiar contenido anterior
+
+            data.forEach(canal => {
+                const channelCard = document.createElement('div');
+                channelCard.className = 'channel-card';
+                channelCard.innerHTML = `
+                    <img src="${canal.image}" alt="${canal.name}">
+                    <h2>${canal.name}</h2>
+                    <p><strong>Categoría:</strong> ${canal.category}</p>
+                    <p><strong>Viewers:</strong> ${canal.viewers}</p>
+                    <a href="${canal.url}" target="_blank">Visitar canal</a>
+                `;
+                channelsDiv.appendChild(channelCard);
+            });
+        });
+
+        // Botón para iniciar el scraping
+        document.getElementById('scrape-btn').addEventListener('click', () => {
+            ipcRenderer.send('start-scraping');
+        });
+    </script>
+</body>
+</html>
